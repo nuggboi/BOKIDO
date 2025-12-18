@@ -21,7 +21,7 @@ function love.load() -- load all variables, colliders, animations, etc
 	effect.scanlines.opacity = 0.25 -- how visible the scanlines are (0-1)
 	effect.scanlines.thickness = 1.2 -- width of each scanline
 
-	--player configd
+	--player config
 	player = {}
 	player.x = 250
 	player.y = -250
@@ -209,4 +209,3 @@ function love.draw()
 		love.graphics.pop()
 	end)
 end
-
