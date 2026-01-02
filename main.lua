@@ -29,11 +29,13 @@ function love.load() -- load all variables, colliders, animations, etc
 	player.runspeed = 3
 	player.jumpforce = 400
 	player.speedmult = 150
+	--animation tables
+	lunge_punch = {}
 	--flip stuffx
 	player.flipped = false
 	player.scaleX = 3
 	player.targetscaleX = 3
-	player.flipspeed = 0.3
+	player.flipspeed = 0.6
 	--player collider
 	player.collider = world:newCollider("Rectangle", { player.x, player.y, 40, 96 })
 	player.collider:setType("dynamic")
@@ -42,14 +44,18 @@ function love.load() -- load all variables, colliders, animations, etc
 	player.collider:setFixedRotation(true) --prevents rotation
 
 	--spritesheet config
-	player.sheet = love.graphics.newImage("assets/male_hero_template.png")
+	--player
+	player.sheet = love.graphics.newImage("assets/player/male_hero_template.png")
 	player.grid = anim8.newGrid(128, 128, player.sheet:getWidth(), player.sheet:getHeight())
-
+	--attacks
+	lunge_punch.sheet = love.graphics.newImage("assets/player/attacks/lunge_punch.png")
+	lunge_punch.grid = anim8.newGrid(47, 32, lunge_punch.sheet:getWidth(), lunge_punch.sheet:getHeight())
 	--animations
 	animations = {}
-	animations.idle = anim8.newAnimation(player.grid("1-10", 2), 0.11)
-	animations.walk = anim8.newAnimation(player.grid("1-10", 3), 0.11)
-	animations.run = anim8.newAnimation(player.grid("1-10", 4), 0.10)
+	animations.idle = anim8.newAnimation(player.grid("1-10", 2), 0.05)
+	animations.walk = anim8.newAnimation(player.grid("1-10", 3), 0.05)
+	animations.run = anim8.newAnimation(player.grid("1-10", 4), 0.05)
+	animations.lunge_punch = anim8.newAnimation(lunge_punch.grid("1-43", 1), 0.05) --animation  speed
 	player.animation = animations.idle
 
 	--camera config
@@ -148,10 +154,13 @@ function love.update(dt) -- updates physics, movement, animation
 		vx = 0
 	end
 
-	--JUMP
-	if (w or space) and player.landed then
-		player.collider:applyLinearImpulse(0, -1600)
-		player.landed = false
+	--LUNGE PUNCH
+	if w then
+		lungepunching = true
+	elseif nokeys then
+		walking = false
+		running = false
+		vx = 0
 	end
 
 	--animation switch
