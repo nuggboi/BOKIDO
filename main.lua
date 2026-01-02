@@ -52,10 +52,22 @@ function love.load() -- load all variables, colliders, animations, etc
 	lunge_punch.grid = anim8.newGrid(47, 32, lunge_punch.sheet:getWidth(), lunge_punch.sheet:getHeight())
 	--animations
 	animations = {}
-	animations.idle = anim8.newAnimation(player.grid("1-10", 2), 0.05)
-	animations.walk = anim8.newAnimation(player.grid("1-10", 3), 0.05)
-	animations.run = anim8.newAnimation(player.grid("1-10", 4), 0.05)
-	animations.lunge_punch = anim8.newAnimation(lunge_punch.grid("1-43", 1), 0.05) --animation  speed
+	animations.idle = {
+		anim = anim8.newAnimation(player.grid("1-10", 2), 0.05),
+		sheet = player.sheet
+	}
+	animations.walk = {
+		anim = anim8.newAnimation(player.grid("1-10", 3), 0.05),
+		sheet = player.sheet
+	}
+	animations.run = {
+		anim = anim8.newAnimation(player.grid("1-10", 4), 0.05),
+		sheet = player.sheet
+	}
+	animations.lunge_punch = {
+		anim = anim8.newAnimation(lunge_punch.grid("1-43", 1), 0.05),
+		sheet = lunge_punch.sheet
+	}
 	player.animation = animations.idle
 
 	--camera config
@@ -101,6 +113,14 @@ function drawParallax(background, camera) -- inits camera and parallax backgroun
 	end
 end
 
+function setAnimation(name)
+	local nextAnim = animations[name]
+	if player.animation ~= nextAnim then
+		player.animation = nextAnim
+		player.animation.anim:gotoFrame(1)
+	end
+end
+
 function love.update(dt) -- updates physics, movement, animation
 	--physics update
 	world:update(dt)
@@ -118,6 +138,11 @@ function love.update(dt) -- updates physics, movement, animation
 	local w = love.keyboard.isDown("w")
 	local space = love.keyboard.isDown("space")
 	local nokeys = not (a or d or s or w or shiftDown)
+
+	--attacks
+	local lungepunching=false
+	local attacktimer= 0
+	local attackduration=0.7
 
 	--MOVE RIGHT
 	if d then
@@ -155,8 +180,9 @@ function love.update(dt) -- updates physics, movement, animation
 	end
 
 	--LUNGE PUNCH
-	if w then
-		lungepunching = true
+	if space and not lungepunching then
+		lungepunching=true
+		attacktimer=attackduration
 	elseif nokeys then
 		walking = false
 		running = false
@@ -164,13 +190,25 @@ function love.update(dt) -- updates physics, movement, animation
 	end
 
 	--animation switch
-	if running then
-		player.animation = animations.run
+	if lungepunching then
+		setAnimation("lunge_punch")
+	elseif running then
+		setAnimation("run")
 	elseif walking then
-		player.animation = animations.walk
+		setAnimation("walk")
 	else
-		player.animation = animations.idle
+		setAnimation("idle")
 	end
+
+	--attack stop
+	if player.isAttacking then
+		player.attackTimer = player.attackTimer - dt
+		if player.attackTimer <= 0 then
+			player.isAttacking = false
+			setAnimation("idle")
+		end
+	end
+
 
 	--smooth flip
 	if player.scaleX < player.targetscaleX then
@@ -180,7 +218,7 @@ function love.update(dt) -- updates physics, movement, animation
 	end
 
 	--update player animation
-	player.animation:update(1 / 120)
+	player.animation.anim:update(dt)
 
 	--APPLY VELOCITY TO COLLIDER
 	local _, currentVy = player.collider:getLinearVelocity()
@@ -209,7 +247,7 @@ function love.draw()
 		love.graphics.draw(platform.sprite, platform.x, platform.y, 0, 5, 4)
 
 		--player draw
-		player.animation:draw(player.sheet, player.x, player.y, 0, player.scaleX, 3, 64, 64)
+		player.animation.anim:draw(player.animation.sheet, player.x, player.y, 0, player.scaleX, 3, 64, 64)
 
 		--collision debug
 		world:draw()
