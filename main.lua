@@ -28,14 +28,15 @@ function love.load() -- load all variables, colliders, animations, etc
 	player.walkspeed = 1
 	player.runspeed = 3
 	player.jumpforce = 400
-	player.speedmult = 150
+
 	--animation tables
 	lunge_punch = {}
 	--flip stuffx
 	player.flipped = false
 	player.scaleX = 3
 	player.targetscaleX = 3
-	player.flipspeed = 0.6
+	player.flipspeed = 0.8
+	player.speedmult=150
 	--player collider
 	player.collider = world:newCollider("Rectangle", { player.x, player.y, 40, 96 })
 	player.collider:setType("dynamic")
@@ -50,22 +51,27 @@ function love.load() -- load all variables, colliders, animations, etc
 	--attacks
 	lunge_punch.sheet = love.graphics.newImage("assets/player/attacks/lunge_punch.png")
 	lunge_punch.grid = anim8.newGrid(128, 128, lunge_punch.sheet:getWidth(), lunge_punch.sheet:getHeight())
+
+	--animation speeds
+	animspds={}
+		animspds.movespd=0.09
+		animspds.atkspd=0.024
 	--animations
 	animations = {}
 	animations.idle = {
-		anim = anim8.newAnimation(player.grid("1-10", 2), 0.05),
+		anim = anim8.newAnimation(player.grid("1-10", 2), animspds.movespd), --speed
 		sheet = player.sheet
 	}
 	animations.walk = {
-		anim = anim8.newAnimation(player.grid("1-10", 3), 0.05),
+		anim = anim8.newAnimation(player.grid("1-10", 3), animspds.movespd),
 		sheet = player.sheet
 	}
 	animations.run = {
-		anim = anim8.newAnimation(player.grid("1-10", 4), 0.05),
+		anim = anim8.newAnimation(player.grid("1-10", 4), animspds.movespd),
 		sheet = player.sheet
 	}
 	animations.lunge_punch = {
-		anim = anim8.newAnimation(lunge_punch.grid("1-43", 1), 0.05),
+		anim = anim8.newAnimation(lunge_punch.grid("1-43", 1), animspds.atkspd),
 		sheet = lunge_punch.sheet
 	}
 	player.animation = animations.idle
