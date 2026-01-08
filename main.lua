@@ -49,7 +49,7 @@ function love.load() -- load all variables, colliders, animations, etc
 	player.grid = anim8.newGrid(128, 128, player.sheet:getWidth(), player.sheet:getHeight())
 	--attacks
 	lunge_punch.sheet = love.graphics.newImage("assets/player/attacks/lunge_punch.png")
-	lunge_punch.grid = anim8.newGrid(47, 32, lunge_punch.sheet:getWidth(), lunge_punch.sheet:getHeight())
+	lunge_punch.grid = anim8.newGrid(128, 128, lunge_punch.sheet:getWidth(), lunge_punch.sheet:getHeight())
 	--animations
 	animations = {}
 	animations.idle = {
