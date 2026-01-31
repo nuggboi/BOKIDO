@@ -11,6 +11,9 @@ function love.load() -- load all variables, colliders, animations, etc
 	local moonshine = require("libraries/moonshine")
 	local bf = require("libraries/breezefield-master")
 
+	--other file inits
+	parallax=require("parallax")
+
 	--physics world init
 	world = bf.newWorld(0, 1200) --gravity
 	--register contact callbacks
@@ -55,7 +58,7 @@ function love.load() -- load all variables, colliders, animations, etc
 	--animation speeds
 	animspds={}
 		animspds.movespd=0.09
-		animspds.atkspd=0.024
+		animspds.atkspd=0.02
 	--animations
 	animations = {}
 	animations.idle = {
@@ -99,24 +102,6 @@ function love.load() -- load all variables, colliders, animations, etc
 	--platform collider
 	platform.collider = world:newCollider("Rectangle", { 520, 62, platform.w, platform.h })
 	platform.collider:setType("static")
-end
-
-function drawParallax(background, camera) -- inits camera and parallax background
-	local winW, winH = love.graphics.getDimensions()
-	local speeds = { 0.05, 0.1, 0.2, 0.35, 0.5, 0.7 }
-	local zoom = 1.0 -- adjust zoom
-	local baseYOffset = 65 -- move entire background down
-
-	for i = 1, #background do
-		local layer = background[i]
-		local scale = math.min(winW / layer:getWidth(), winH / layer:getHeight()) * zoom
-		local layerW = layer:getWidth() * scale
-		local x = (-camera.x * speeds[i]) % layerW
-
-		-- draw twice for seamless wrap
-		love.graphics.draw(layer, x - layerW, baseYOffset, 0, scale, scale)
-		love.graphics.draw(layer, x, baseYOffset, 0, scale, scale)
-	end
 end
 
 function setAnimation(name)
@@ -243,7 +228,7 @@ end
 function love.draw()
 	--SHADER
 	effect(function()
-		drawParallax(background, camera)
+		parallax.draw(background, camera)
 
 		-- Apply camera transform for world objects
 		love.graphics.push()
