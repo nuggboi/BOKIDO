@@ -102,6 +102,9 @@ function love.load() -- load all variables, colliders, animations, etc
 	--platform collider
 	platform.collider = world:newCollider("Rectangle", { 520, 62, platform.w, platform.h })
 	platform.collider:setType("static")
+
+	--sfx init
+	lungepunchsfx=love.audio.newSource("audio/sfx/atkx/lungepunch/lungepunch1.wav","static")
 end
 
 function setAnimation(name)
@@ -131,9 +134,15 @@ function love.update(dt) -- updates physics, movement, animation
 	local nokeys = not (a or d or s or w or shiftDown)
 
 	--attacks
-	local lungepunching=false
-	local attacktimer= 0
-	local attackduration=0.7
+	-- LUNGE PUNCH (press, not hold)
+	if space and not spaceWasDown and not player.isAttacking then
+		player.isAttacking = true
+		player.attackTimer = 0.7
+		lungepunchsfx:stop()
+		lungepunchsfx:play()
+	end
+    spaceWasDown = space
+
 
 	--MOVE RIGHT
 	if d then
@@ -181,7 +190,7 @@ function love.update(dt) -- updates physics, movement, animation
 	end
 
 	--animation switch
-	if lungepunching then
+	if player.isAttacking then
 		setAnimation("lunge_punch")
 	elseif running then
 		setAnimation("run")
