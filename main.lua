@@ -1,7 +1,7 @@
 function love.load() -- load all variables, colliders, animations, etc
 	--window config
 	love.window.setMode(1200, 800)
-	love.window.setTitle("Fighting Game") --obsidian reset
+	love.window.setTitle("Fighting Game")
 
 	--pixel perfect
 	love.graphics.setDefaultFilter("nearest", "nearest")
