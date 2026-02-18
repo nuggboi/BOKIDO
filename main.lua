@@ -1,7 +1,7 @@
 function love.load() -- load all variables, colliders, animations, etc
 	--window config
 	love.window.setMode(1200, 800)
-	love.window.setTitle("Fighting Game")
+	love.window.setTitle("Fighting Game") --obsidian reset
 
 	--pixel perfect
 	love.graphics.setDefaultFilter("nearest", "nearest")
@@ -12,7 +12,7 @@ function love.load() -- load all variables, colliders, animations, etc
 	local bf = require("libraries/breezefield-master")
 
 	--other file inits
-	parallax=require("parallax")
+	parallax = require("parallax")
 
 	--physics world init
 	world = bf.newWorld(0, 1200) --gravity
@@ -39,7 +39,7 @@ function love.load() -- load all variables, colliders, animations, etc
 	player.scaleX = 3
 	player.targetscaleX = 3
 	player.flipspeed = 0.8
-	player.speedmult=150
+	player.speedmult = 150
 	--player collider
 	player.collider = world:newCollider("Rectangle", { player.x, player.y, 40, 96 })
 	player.collider:setType("dynamic")
@@ -56,26 +56,26 @@ function love.load() -- load all variables, colliders, animations, etc
 	lunge_punch.grid = anim8.newGrid(128, 128, lunge_punch.sheet:getWidth(), lunge_punch.sheet:getHeight())
 
 	--animation speeds
-	animspds={}
-		animspds.movespd=0.09
-		animspds.atkspd=0.02
+	animspds = {}
+	animspds.movespd = 0.09
+	animspds.atkspd = 0.02
 	--animations
 	animations = {}
 	animations.idle = {
 		anim = anim8.newAnimation(player.grid("1-10", 2), animspds.movespd), --speed
-		sheet = player.sheet
+		sheet = player.sheet,
 	}
 	animations.walk = {
 		anim = anim8.newAnimation(player.grid("1-10", 3), animspds.movespd),
-		sheet = player.sheet
+		sheet = player.sheet,
 	}
 	animations.run = {
 		anim = anim8.newAnimation(player.grid("1-10", 4), animspds.movespd),
-		sheet = player.sheet
+		sheet = player.sheet,
 	}
 	animations.lunge_punch = {
 		anim = anim8.newAnimation(lunge_punch.grid("1-43", 1), animspds.atkspd),
-		sheet = lunge_punch.sheet
+		sheet = lunge_punch.sheet,
 	}
 	player.animation = animations.idle
 
@@ -104,7 +104,7 @@ function love.load() -- load all variables, colliders, animations, etc
 	platform.collider:setType("static")
 
 	--sfx init
-	lungepunchsfx=love.audio.newSource("audio/sfx/atkx/lungepunch/lungepunch1.wav","static")
+	lungepunchsfx = love.audio.newSource("audio/sfx/atkx/lungepunch/lungepunch1.wav", "static")
 end
 
 function setAnimation(name)
@@ -141,8 +141,7 @@ function love.update(dt) -- updates physics, movement, animation
 		lungepunchsfx:stop()
 		lungepunchsfx:play()
 	end
-    spaceWasDown = space
-
+	spaceWasDown = space
 
 	--MOVE RIGHT
 	if d then
@@ -181,8 +180,8 @@ function love.update(dt) -- updates physics, movement, animation
 
 	--LUNGE PUNCH
 	if space and not lungepunching then
-		lungepunching=true
-		attacktimer=attackduration
+		lungepunching = true
+		attacktimer = attackduration
 	elseif nokeys then
 		walking = false
 		running = false
@@ -208,7 +207,6 @@ function love.update(dt) -- updates physics, movement, animation
 			setAnimation("idle")
 		end
 	end
-
 
 	--smooth flip
 	if player.scaleX < player.targetscaleX then
