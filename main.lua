@@ -7,12 +7,12 @@ function love.load() -- load all variables, colliders, animations, etc
 	love.graphics.setDefaultFilter("nearest", "nearest")
 
 	--library inits
-	local anim8 = require("libraries/anim8")
 	local moonshine = require("libraries/moonshine")
 	local bf = require("libraries/breezefield-master")
 
 	--file inits
 	parallax = require("parallax")
+	animating = require("animating")
 
 	--physics world init
 	world = bf.newWorld(0, 1200) --gravity
@@ -32,14 +32,13 @@ function love.load() -- load all variables, colliders, animations, etc
 	player.runspeed = 3
 	player.jumpforce = 400
 
-	--animation tables
-	lunge_punch = {}
 	--flip stuffx
 	player.flipped = false
 	player.scaleX = 3
 	player.targetscaleX = 3
 	player.flipspeed = 0.8
 	player.speedmult = 150
+
 	--player collider
 	player.collider = world:newCollider("Rectangle", { player.x, player.y, 40, 96 })
 	player.collider:setType("dynamic")
@@ -47,37 +46,9 @@ function love.load() -- load all variables, colliders, animations, etc
 	player.collider:setFriction(0.5)
 	player.collider:setFixedRotation(true) --prevents rotation
 
-	--spritesheet config
-	--player
-	player.sheet = love.graphics.newImage("assets/player/male_hero_template.png")
-	player.grid = anim8.newGrid(128, 128, player.sheet:getWidth(), player.sheet:getHeight())
-	--attacks
-	lunge_punch.sheet = love.graphics.newImage("assets/player/attacks/lunge_punch.png")
-	lunge_punch.grid = anim8.newGrid(128, 128, lunge_punch.sheet:getWidth(), lunge_punch.sheet:getHeight())
+	--animating engine initialisation
+	animating.init(player)
 
-	--animation speeds
-	animspds = {}
-	animspds.movespd = 0.09
-	animspds.atkspd = 0.02
-	--animations
-	animations = {}
-	animations.idle = {
-		anim = anim8.newAnimation(player.grid("1-10", 2), animspds.movespd), --speed
-		sheet = player.sheet,
-	}
-	animations.walk = {
-		anim = anim8.newAnimation(player.grid("1-10", 3), animspds.movespd),
-		sheet = player.sheet,
-	}
-	animations.run = {
-		anim = anim8.newAnimation(player.grid("1-10", 4), animspds.movespd),
-		sheet = player.sheet,
-	}
-	animations.lunge_punch = {
-		anim = anim8.newAnimation(lunge_punch.grid("1-43", 1), animspds.atkspd),
-		sheet = lunge_punch.sheet,
-	}
-	player.animation = animations.idle
 
 	--camera config
 	camera = { x = 0, y = 0, speed = 5 } --speed = how fast it catches up
@@ -103,21 +74,14 @@ function love.load() -- load all variables, colliders, animations, etc
 	platform.collider = world:newCollider("Rectangle", { 520, 62, platform.w, platform.h })
 	platform.collider:setType("static")
 
-	--sfx init
+	--sfx init [VERY CHANGEABLE RN]
 	lungepunchsfx = love.audio.newSource("audio/sfx/atkx/lungepunch/lungepunch1.wav", "static")
-end
-
-function setAnimation(name)
-	local nextAnim = animations[name]
-	if player.animation ~= nextAnim then
-		player.animation = nextAnim
-		player.animation.anim:gotoFrame(1)
-	end
 end
 
 function love.update(dt) -- updates physics, movement, animation
 	--physics update
 	world:update(dt)
+	animating.update(player,dt)
 
 	--velocity
 	local vx, vy = player.collider:getLinearVelocity()
@@ -190,13 +154,13 @@ function love.update(dt) -- updates physics, movement, animation
 
 	--animation switch
 	if player.isAttacking then
-		setAnimation("lunge_punch")
+		animating.set(player,"lunge_punch")
 	elseif running then
-		setAnimation("run")
+		animating.set(player,"run")
 	elseif walking then
-		setAnimation("walk")
+		animating.set(player,"walk")
 	else
-		setAnimation("idle")
+		animating.set(player,"idle")
 	end
 
 	--attack stop
@@ -204,7 +168,7 @@ function love.update(dt) -- updates physics, movement, animation
 		player.attackTimer = player.attackTimer - dt
 		if player.attackTimer <= 0 then
 			player.isAttacking = false
-			setAnimation("idle")
+			animating.set(player,"idle")
 		end
 	end
 
@@ -214,9 +178,6 @@ function love.update(dt) -- updates physics, movement, animation
 	elseif player.scaleX > player.targetscaleX then
 		player.scaleX = math.max(player.scaleX - player.flipspeed, player.targetscaleX)
 	end
-
-	--update player animation
-	player.animation.anim:update(dt)
 
 	--APPLY VELOCITY TO COLLIDER
 	local _, currentVy = player.collider:getLinearVelocity()
