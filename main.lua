@@ -11,7 +11,7 @@ function love.load() -- load all variables, colliders, animations, etc
 	local moonshine = require("libraries/moonshine")
 	local bf = require("libraries/breezefield-master")
 
-	--other file inits
+	--file inits
 	parallax = require("parallax")
 
 	--physics world init
