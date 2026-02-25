@@ -1,7 +1,7 @@
 local animation = {}
 
 --animation library init
-local anim8 = require("libraries/anim8")
+local anim8 = require("libs/anim8")
 
 --animation speeds
 local animspds = {

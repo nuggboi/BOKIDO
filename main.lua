@@ -1,18 +1,18 @@
 function love.load() -- load all variables, colliders, animations, etc
 	--window config
 	love.window.setMode(1200, 800)
-	love.window.setTitle("Fighting Game")
+	love.window.setTitle("BOKIDO")
 
 	--pixel perfect
 	love.graphics.setDefaultFilter("nearest", "nearest")
 
 	--library inits
-	local moonshine = require("libraries/moonshine")
-	local bf = require("libraries/breezefield-master")
+	local moonshine = require("libs/moonshine")
+	local bf = require("libs/breezefield-master")
 
 	--file inits
-	parallax = require("parallax")
-	animation = require("animation")
+	parallax = require("engine/parallax")
+	animation = require("engine/animation")
 
 	--physics world init
 	world = bf.newWorld(0, 1200) --gravity
