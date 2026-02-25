@@ -12,7 +12,7 @@ function love.load() -- load all variables, colliders, animations, etc
 
 	--file inits
 	parallax = require("parallax")
-	animating = require("animating")
+	animation = require("animation")
 
 	--physics world init
 	world = bf.newWorld(0, 1200) --gravity
@@ -47,7 +47,7 @@ function love.load() -- load all variables, colliders, animations, etc
 	player.collider:setFixedRotation(true) --prevents rotation
 
 	--animating engine initialisation
-	animating.init(player)
+	animation.init(player)
 
 
 	--camera config
@@ -81,7 +81,7 @@ end
 function love.update(dt) -- updates physics, movement, animation
 	--physics update
 	world:update(dt)
-	animating.update(player,dt)
+	animation.update(player,dt)
 
 	--velocity
 	local vx, vy = player.collider:getLinearVelocity()
@@ -154,13 +154,13 @@ function love.update(dt) -- updates physics, movement, animation
 
 	--animation switch
 	if player.isAttacking then
-		animating.set(player,"lunge_punch")
+		animation.set(player,"lunge_punch")
 	elseif running then
-		animating.set(player,"run")
+		animation.set(player,"run")
 	elseif walking then
-		animating.set(player,"walk")
+		animation.set(player,"walk")
 	else
-		animating.set(player,"idle")
+		animation.set(player,"idle")
 	end
 
 	--attack stop
@@ -168,7 +168,7 @@ function love.update(dt) -- updates physics, movement, animation
 		player.attackTimer = player.attackTimer - dt
 		if player.attackTimer <= 0 then
 			player.isAttacking = false
-			animating.set(player,"idle")
+			animation.set(player,"idle")
 		end
 	end
 

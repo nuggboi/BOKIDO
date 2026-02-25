@@ -1,4 +1,4 @@
-local animating = {}
+local animation = {}
 
 --animation library init
 local anim8 = require("libraries/anim8")
@@ -39,17 +39,17 @@ local animations = {
 }
 -----------------------------------------------------------------------------------------------
 -- init
-function animating.init(player)
+function animation.init(player)
 	player.animation = animations.idle
 end
 
 -- update
-function animating.update(player,dt)
+function animation.update(player,dt)
 	player.animation.anim:update(dt)
 end
 
 -- set animation
-function animating.set(player,name)
+function animation.set(player,name)
 	local nextAnim = animations[name]
 	if nextAnim and player.animation ~= nextAnim then
 		player.animation = nextAnim
@@ -57,4 +57,4 @@ function animating.set(player,name)
 	end
 end
 
-return animating
+return animation
