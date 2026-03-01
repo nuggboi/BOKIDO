@@ -49,19 +49,8 @@ function love.load() -- load all variables, colliders, animations, etc
 	--animating engine initialisation
 	animation.init(player)
 
-
 	--camera config
 	camera = { x = 0, y = 0, speed = 5 } --speed = how fast it catches up
-
-	--PARALLAX CONFIG
-	background = {
-		love.graphics.newImage("assets/background/1.png"),
-		love.graphics.newImage("assets/background/2.png"),
-		love.graphics.newImage("assets/background/3.png"),
-		love.graphics.newImage("assets/background/4.png"),
-		love.graphics.newImage("assets/background/5.png"),
-		love.graphics.newImage("assets/background/6.png"),
-	}
 
 	--platform config
 	platform = {}
