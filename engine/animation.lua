@@ -39,7 +39,7 @@ local animations = {
 }
 -----------------------------------------------------------------------------------------------
 -- init
-function animation.init(player)
+function animation.load(player)
 	player.animation = animations.idle
 end
 

@@ -10,46 +10,24 @@ function love.load() -- load all variables, colliders, animations, etc
 	local moonshine = require("libs/moonshine")
 	local bf = require("libs/breezefield-master")
 
-	--file inits
-	parallax = require("engine/parallax")
-	animation = require("engine/animation")
-	input = require("engine/input")
-	movement = require("engine/movement")
-
 	--physics world init
 	world = bf.newWorld(0, 1200) --gravity
 	--register contact callbacks
 	world:setCallbacks(beginContact, endContact)
 
+	--file inits
+	playerconf = require("engine/playerconf")
+	playerconf.load()
+	animation = require("engine/animation")
+	animation.load(player)
+	parallax = require("engine/parallax")
+	input = require("engine/input")
+	movement = require("engine/movement")
+
 	--shader config
 	effect = moonshine(moonshine.effects.scanlines) -- init shader
 	effect.scanlines.opacity = 0.25 -- how visible the scanlines are (0-1)
 	effect.scanlines.thickness = 1.2 -- width of each scanline
-
-	--player config
-	player = {}
-	player.x = 250
-	player.y = -250
-	player.walkspeed = 1
-	player.runspeed = 3
-	player.jumpforce = 400
-
-	--flip stuffx
-	player.flipped = false
-	player.scaleX = 3
-	player.targetscaleX = 3
-	player.flipspeed = 0.8
-	player.speedmult = 150
-
-	--player collider
-	player.collider = world:newCollider("Rectangle", { player.x, player.y, 40, 96 })
-	player.collider:setType("dynamic")
-	player.collider:setPosition(player.x, player.y)
-	player.collider:setFriction(0.5)
-	player.collider:setFixedRotation(true) --prevents rotation
-
-	--animating engine initialisation
-	animation.init(player)
 
 	--camera config
 	camera = { x = 0, y = 0, speed = 5 } --speed = how fast it catches up
