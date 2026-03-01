@@ -13,6 +13,7 @@ function love.load() -- load all variables, colliders, animations, etc
 	--file inits
 	parallax = require("engine/parallax")
 	animation = require("engine/animation")
+	input = require("engine/input")
 
 	--physics world init
 	world = bf.newWorld(0, 1200) --gravity
@@ -60,7 +61,7 @@ function love.load() -- load all variables, colliders, animations, etc
 	platform.w = platform.sprite:getWidth() * 5
 	platform.h = platform.sprite:getHeight() * 4
 	--platform collider
-	platform.collider = world:newCollider("Rectangle", { 520, 62, platform.w, platform.h })
+	platform.collider = world:newCollider("Rectangle", {520, 62, platform.w, platform.h })
 	platform.collider:setType("static")
 
 	--sfx init [VERY CHANGEABLE RN]
@@ -70,21 +71,21 @@ end
 function love.update(dt) -- updates physics, movement, animation
 	--physics update
 	world:update(dt)
+	--animation update
 	animation.update(player,dt)
+	--input update
+	input.update()
+
+	local a = love.keyboard.isDown("a")
+	local d = love.keyboard.isDown("d")
+    local s = love.keyboard.isDown("s")
+	local w = love.keyboard.isDown("w")
+	local space = love.keyboard.isDown("space")
+    local shiftDown = love.keyboard.isDown("lshift")
+	local nokeys = not (a or d or s or w or shiftDown)
 
 	--velocity
 	local vx, vy = player.collider:getLinearVelocity()
-
-	--check for shift
-	local shiftDown = love.keyboard.isDown("lshift")
-
-	--nokeys variable
-	local a = love.keyboard.isDown("a")
-	local d = love.keyboard.isDown("d")
-	local s = love.keyboard.isDown("s")
-	local w = love.keyboard.isDown("w")
-	local space = love.keyboard.isDown("space")
-	local nokeys = not (a or d or s or w or shiftDown)
 
 	--attacks
 	-- LUNGE PUNCH (press, not hold)
@@ -97,7 +98,7 @@ function love.update(dt) -- updates physics, movement, animation
 	spaceWasDown = space
 
 	--MOVE RIGHT
-	if d then
+	if input.state.d then
 		walking = true --walking anim
 		if shiftDown then --shift check
 			vx = player.runspeed * player.speedmult --move player collider
@@ -115,7 +116,7 @@ function love.update(dt) -- updates physics, movement, animation
 	end
 
 	--MOVE LEFT
-	if a then
+	if input.state.a then
 		walking = true --walking anim
 		if shiftDown then --shift check
 			vx = -player.runspeed * player.speedmult --move player collider
@@ -132,7 +133,7 @@ function love.update(dt) -- updates physics, movement, animation
 	end
 
 	--LUNGE PUNCH
-	if space and not lungepunching then
+	if input.state.space and not lungepunching then
 		lungepunching = true
 		attacktimer = attackduration
 	elseif nokeys then
@@ -196,9 +197,6 @@ function love.draw()
 
 		--player draw
 		player.animation.anim:draw(player.animation.sheet, player.x, player.y, 0, player.scaleX, 3, 64, 64)
-
-		--collision debug
-		world:draw()
 
 		--update
 		love.graphics.pop()
