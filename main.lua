@@ -14,6 +14,7 @@ function love.load() -- load all variables, colliders, animations, etc
 	parallax = require("engine/parallax")
 	animation = require("engine/animation")
 	input = require("engine/input")
+	movement = require("engine/movement")
 
 	--physics world init
 	world = bf.newWorld(0, 1200) --gravity
@@ -75,112 +76,10 @@ function love.update(dt) -- updates physics, movement, animation
 	animation.update(player,dt)
 	--input update
 	input.update()
+	--movement update
+	movement.update(player, input, animation, camera, dt, {lunge = lungepunchsfx})
 
-	local a = love.keyboard.isDown("a")
-	local d = love.keyboard.isDown("d")
-    local s = love.keyboard.isDown("s")
-	local w = love.keyboard.isDown("w")
-	local space = love.keyboard.isDown("space")
-    local shiftDown = love.keyboard.isDown("lshift")
-	local nokeys = not (a or d or s or w or shiftDown)
-
-	--velocity
-	local vx, vy = player.collider:getLinearVelocity()
-
-	--attacks
-	-- LUNGE PUNCH (press, not hold)
-	if space and not spaceWasDown and not player.isAttacking then
-		player.isAttacking = true
-		player.attackTimer = 0.7
-		lungepunchsfx:stop()
-		lungepunchsfx:play()
-	end
-	spaceWasDown = space
-
-	--MOVE RIGHT
-	if input.state.d then
-		walking = true --walking anim
-		if shiftDown then --shift check
-			vx = player.runspeed * player.speedmult --move player collider
-			running = true --running anim
-		else
-			vx = player.walkspeed * player.speedmult --move player collider
-		end
-		player.flipped = false --flip stuff
-		player.targetscaleX = 3 --flip stuff
-	elseif nokeys then
-		walking = false --stop anims except idle
-		running = false --stop anims except idle
-		vx = 0 --set velocity to 0
-		-- DO NOT zero vy here! otherwise it cancels the jump impulse
-	end
-
-	--MOVE LEFT
-	if input.state.a then
-		walking = true --walking anim
-		if shiftDown then --shift check
-			vx = -player.runspeed * player.speedmult --move player collider
-			running = true --running anim
-		else
-			vx = -player.walkspeed * player.speedmult --move player collider
-		end
-		player.flipped = true --flip stuff
-		player.targetscaleX = -3 --flip stuff
-	elseif nokeys then
-		walking = false --stop anims except idle
-		running = false --stop anims except idle
-		vx = 0
-	end
-
-	--LUNGE PUNCH
-	if input.state.space and not lungepunching then
-		lungepunching = true
-		attacktimer = attackduration
-	elseif nokeys then
-		walking = false
-		running = false
-		vx = 0
-	end
-
-	--animation switch
-	if player.isAttacking then
-		animation.set(player,"lunge_punch")
-	elseif running then
-		animation.set(player,"run")
-	elseif walking then
-		animation.set(player,"walk")
-	else
-		animation.set(player,"idle")
-	end
-
-	--attack stop
-	if player.isAttacking then
-		player.attackTimer = player.attackTimer - dt
-		if player.attackTimer <= 0 then
-			player.isAttacking = false
-			animation.set(player,"idle")
-		end
-	end
-
-	--smooth flip
-	if player.scaleX < player.targetscaleX then
-		player.scaleX = math.min(player.scaleX + player.flipspeed, player.targetscaleX)
-	elseif player.scaleX > player.targetscaleX then
-		player.scaleX = math.max(player.scaleX - player.flipspeed, player.targetscaleX)
-	end
-
-	--APPLY VELOCITY TO COLLIDER
-	local _, currentVy = player.collider:getLinearVelocity()
-	player.collider:setLinearVelocity(vx, currentVy)
-
-	--UPDATE PLAYER POSITION TO FOLLOW COLLIDER
-	player.x, player.y = player.collider:getPosition()
-
-	--camera follow
-	local targetX = player.x - love.graphics.getWidth() / 2
-	local targetY = player.y - love.graphics.getHeight() / 2
-	camera.x = camera.x + (targetX - camera.x) * dt * camera.speed
-	camera.y = camera.y + (targetY - camera.y) * dt * camera.speed
+	--CAMERA STUFF FOUND IN MOVEMENT.LUA
 end
 
 function love.draw()
