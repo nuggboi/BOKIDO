@@ -1,16 +1,15 @@
 -- parallax.lua
 local parallax = {}
 
-background = {
-    love.graphics.newImage("assets/background/1.png"),
-    love.graphics.newImage("assets/background/2.png"),
-    love.graphics.newImage("assets/background/3.png"),
-    love.graphics.newImage("assets/background/4.png"),
-    love.graphics.newImage("assets/background/5.png"),
-    love.graphics.newImage("assets/background/6.png"),
-}
-
 function parallax.draw(background, camera)
+    local background = {
+        love.graphics.newImage("assets/background/1.png"),
+        love.graphics.newImage("assets/background/2.png"),
+        love.graphics.newImage("assets/background/3.png"),
+        love.graphics.newImage("assets/background/4.png"),
+        love.graphics.newImage("assets/background/5.png"),
+        love.graphics.newImage("assets/background/6.png"),
+    }
     local winW, winH = love.graphics.getDimensions()
     local speeds = { 0.05, 0.1, 0.2, 0.35, 0.5, 0.7 }
     local zoom = 1.0 -- adjust zoom
