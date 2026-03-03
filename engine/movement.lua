@@ -13,8 +13,10 @@ function movement.update(player, input, animation, camera, dt, sfx)
     end
     player.spaceWasDown = input.state.space
 
+    --animation state variables
     local walking = false
     local running = false
+    local jumping = false
 
     -- MOVE RIGHT
     if input.state.d then
@@ -44,6 +46,11 @@ function movement.update(player, input, animation, camera, dt, sfx)
         vx = 0
     end
 
+    if input.state.c then
+        jumping = true
+    end
+        
+
     -- animation switch
     if player.isAttacking then
         animation.set(player,"lunge_punch")
@@ -51,6 +58,8 @@ function movement.update(player, input, animation, camera, dt, sfx)
         animation.set(player,"run")
     elseif walking then
         animation.set(player,"walk")
+    elseif jumping then
+        animation.set(player,"jump")
     else
         animation.set(player,"idle")
     end
