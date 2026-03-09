@@ -14,6 +14,11 @@ function playerconf.load()
 	player.flipspeed = 1.0 --flip speed
 	player.speedmult = 150
 
+	--jump globals
+	player.cWasDown = false
+	player.isJumping = false
+	player.jumpsRemaining = 1
+
 	--player collider
 	player.collider = world:newCollider("Rectangle", { player.x, player.y, 40, 96 })
 	player.collider:setType("dynamic")

@@ -17,6 +17,19 @@ function movement.update(player, input, animation, camera, dt, sfx)
     local walking = false
     local running = false
     local jumping = false
+    local grounded = false
+    --JUMP RESET
+    for _, contact in ipairs(world:getContacts(player.collider)) do
+        if contact:isTouching() then
+            local f1, f2 = contact:getFixtures()
+            local other = (f1 == player.collider.fixture) and f2:getUserData() or f1:getUserData()
+            if other == platform.collider then
+                grounded = true
+                player.jumpsRemaining = 1 -- reset jump
+                break
+            end
+        end
+    end
 
     -- MOVE RIGHT
     if input.state.d then
@@ -46,10 +59,21 @@ function movement.update(player, input, animation, camera, dt, sfx)
         vx = 0
     end
 
-    if input.state.c then
-        jumping = true
+    -- Modify your jump input section:
+    if input.state.c and not player.cWasDown then
+        if grounded then
+            -- Apply upward velocity (negative = up in LOVE2D)
+            local jumpForce = -600 -- Adjust this value to control jump height
+            player.collider:setLinearVelocity(vx, jumpForce)
+            player.isJumping = true
+        end
+        player.cWasDown = true
+    elseif not input.state.c then
+        player.cWasDown = false
+    -- Also update your animation logic to check if player is actually jumping:
+    elseif player.isJumping and vy < 0 then
+        animation.set(player,"jump")
     end
-        
 
     -- animation switch
     if player.isAttacking then
@@ -62,6 +86,11 @@ function movement.update(player, input, animation, camera, dt, sfx)
         animation.set(player,"jump")
     else
         animation.set(player,"idle")
+    end
+
+    -- Reset jumping when player lands
+    if player.isJumping and vy >= 0 and grounded then
+        player.isJumping = false
     end
 
     -- attack timer
