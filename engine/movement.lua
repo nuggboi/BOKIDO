@@ -8,8 +8,8 @@ function movement.update(player, input, animation, camera, dt, sfx)
     if input.state.space and not player.spaceWasDown and not player.isAttacking then
         player.isAttacking = true
         player.attackTimer = 0.7
-        sfx.lunge:stop()
-        sfx.lunge:play()
+        --sfx.lunge:stop()
+        --sfx.lunge:play()
     end
     player.spaceWasDown = input.state.space
 
@@ -70,20 +70,17 @@ function movement.update(player, input, animation, camera, dt, sfx)
         player.cWasDown = true
     elseif not input.state.c then
         player.cWasDown = false
-    -- Also update your animation logic to check if player is actually jumping:
-    elseif player.isJumping and vy < 0 then
-        animation.set(player,"jump")
     end
 
     -- animation switch
-    if player.isAttacking then
+    if player.isJumping then
+        animation.set(player,"jump")
+    elseif player.isAttacking then
         animation.set(player,"lunge_punch")
     elseif running then
         animation.set(player,"run")
     elseif walking then
         animation.set(player,"walk")
-    elseif jumping then
-        animation.set(player,"jump")
     else
         animation.set(player,"idle")
     end

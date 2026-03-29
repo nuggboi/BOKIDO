@@ -44,7 +44,7 @@ function love.load() -- load all variables, colliders, animations, etc
 	platform.collider:setType("static")
 
 	--sfx init [VERY CHANGEABLE RN]
-	lungepunchsfx = love.audio.newSource("assets/audio/sfx/atkx/lungepunch/lungepunch1.wav", "static")
+	--lungepunchsfx = love.audio.newSource("assets/audio/sfx/atkx/lungepunch/lungepunch1.wav", "static")
 end
 
 function love.update(dt) -- updates physics, movement, animation
@@ -55,7 +55,7 @@ function love.update(dt) -- updates physics, movement, animation
 	--input update
 	input.update()
 	--movement update
-	movement.update(player, input, animation, camera, dt, {lunge = lungepunchsfx})
+	movement.update(player, input, animation, camera, dt)
 
 	--CAMERA STUFF FOUND IN MOVEMENT.LUA
 end
