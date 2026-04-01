@@ -71,7 +71,7 @@ function movement.update(player, input, animation, camera, dt, sfx)
     elseif not input.state.c then
         player.cWasDown = false
     end
-
+ 
     -- animation switch
     if player.isJumping then
         animation.set(player,"jump")
