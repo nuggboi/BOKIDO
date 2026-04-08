@@ -8,31 +8,28 @@ function movement.update(player, input, animation, camera, dt, sfx)
     if input.state.space and not player.spaceWasDown and not player.isAttacking then
         player.isAttacking = true
         player.attackTimer = 0.7
-        --sfx.lunge:stop()
-        --sfx.lunge:play()
     end
     player.spaceWasDown = input.state.space
 
-    --animation state variables
+    -- state variables
     local walking = false
     local running = false
-    local jumping = false
     local grounded = false
-    --JUMP RESET
+
+    -- GROUND CHECK
     for _, contact in ipairs(world:getContacts(player.collider)) do
         if contact:isTouching() then
             local f1, f2 = contact:getFixtures()
             local other = (f1 == player.collider.fixture) and f2:getUserData() or f1:getUserData()
             if other == platform.collider then
                 grounded = true
-                player.jumpsRemaining = 1 -- reset jump
                 break
             end
         end
     end
 
     -- MOVE RIGHT
-    if right then
+    if input.state.d then
         walking = true
         if input.state.shiftDown then
             vx = player.runspeed * player.speedmult
@@ -44,7 +41,7 @@ function movement.update(player, input, animation, camera, dt, sfx)
         player.targetscaleX = 3
 
     -- MOVE LEFT
-    elseif left then
+    elseif input.state.a then
         walking = true
         if input.state.shiftDown then
             vx = -player.runspeed * player.speedmult
@@ -59,44 +56,40 @@ function movement.update(player, input, animation, camera, dt, sfx)
         vx = 0
     end
 
-    -- Modify your jump input section:
+    -- JUMP (trigger ONCE)
     if input.state.c and not player.cWasDown then
         if grounded then
-            -- Apply upward velocity (negative = up in LOVE2D)
-            local jumpForce = -600 -- Adjust this value to control jump height
+            local jumpForce = -600
             player.collider:setLinearVelocity(vx, jumpForce)
-            player.isJumping = true
+            animation.set(player, "jump") -- ✅ trigger once here
         end
-        player.cWasDown = true
-    elseif not input.state.c then
-        player.cWasDown = false
     end
- 
-    -- animation switch
-    if player.isJumping then
-        animation.set(player,"jump")
-    elseif player.isAttacking then
-        animation.set(player,"lunge_punch")
-    elseif running then
-        animation.set(player,"run")
-    elseif walking then
-        animation.set(player,"walk")
-    else
-        animation.set(player,"idle")
-    end
+    player.cWasDown = input.state.c
 
-    -- Reset jumping when player lands
-    if player.isJumping and vy >= 0 and grounded then
-        player.isJumping = false
-    end
-
-    -- attack timer
+    -- ATTACK TIMER
     if player.isAttacking then
         player.attackTimer = player.attackTimer - dt
         if player.attackTimer <= 0 then
             player.isAttacking = false
-            animation.set(player,"idle")
         end
+    end
+
+    -- ANIMATION STATE MACHINE (CLEAN PRIORITY)
+    if player.isAttacking then
+        animation.set(player, "lunge_punch")
+
+    elseif not grounded then
+        -- in air (jump/fall)
+        animation.set(player, "jump")
+
+    elseif running then
+        animation.set(player, "run")
+
+    elseif walking then
+        animation.set(player, "walk")
+
+    else
+        animation.set(player, "idle")
     end
 
     -- smooth flip
@@ -106,7 +99,7 @@ function movement.update(player, input, animation, camera, dt, sfx)
         player.scaleX = math.max(player.scaleX - player.flipspeed, player.targetscaleX)
     end
 
-    -- apply velocity
+    -- apply velocity (preserve gravity)
     local _, currentVy = player.collider:getLinearVelocity()
     player.collider:setLinearVelocity(vx, currentVy)
 
