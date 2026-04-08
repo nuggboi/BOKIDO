@@ -16,6 +16,9 @@ local playergrid = anim8.newGrid(128, 128, playersheet:getWidth(), playersheet:g
 --attacks
 local lunge_punchsheet = love.graphics.newImage("assets/player/attacks/lunge_punch.png")
 local lunge_punchgrid = anim8.newGrid(128, 128, lunge_punchsheet:getWidth(), lunge_punchsheet:getHeight())
+--movement
+local jumpsheet = love.graphics.newImage("assets/player/movement/jump.png")
+local jumpgrid = anim8.newGrid(128, 128, jumpsheet:getWidth(), jumpsheet:getHeight())
 
 
 --[CURRENT AVAILABLE ANIMATIONS]---------------------------------------------------------------
@@ -37,8 +40,8 @@ local animations = {
 		sheet = lunge_punchsheet
 	},
 	jump = {
-		anim = anim8.newAnimation(playergrid("1-5",5),animspds.movespd),
-		sheet = playersheet
+		anim = anim8.newAnimation(jumpgrid("1-42",1),animspds.movespd),
+		sheet = jumpsheet
 	}
 }
 -----------------------------------------------------------------------------------------------

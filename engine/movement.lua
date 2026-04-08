@@ -32,7 +32,7 @@ function movement.update(player, input, animation, camera, dt, sfx)
     end
 
     -- MOVE RIGHT
-    if input.state.d then
+    if right then
         walking = true
         if input.state.shiftDown then
             vx = player.runspeed * player.speedmult
@@ -44,7 +44,7 @@ function movement.update(player, input, animation, camera, dt, sfx)
         player.targetscaleX = 3
 
     -- MOVE LEFT
-    elseif input.state.a then
+    elseif left then
         walking = true
         if input.state.shiftDown then
             vx = -player.runspeed * player.speedmult

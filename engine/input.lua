@@ -3,10 +3,10 @@ input.state={}
 function input.update()
     local i = input.state
     --inputs
-	    i.a = love.keyboard.isDown("a")
-	    i.d = love.keyboard.isDown("d")
-        i.s = love.keyboard.isDown("s")
-	    i.w = love.keyboard.isDown("w")
+	    left = love.keyboard.isDown("a")
+	    right = love.keyboard.isDown("d")
+        down = love.keyboard.isDown("s")
+	    up = love.keyboard.isDown("w")
 	    i.space = love.keyboard.isDown("space")
 		i.c = love.keyboard.isDown("c")
         i.shiftDown = love.keyboard.isDown("lshift")
