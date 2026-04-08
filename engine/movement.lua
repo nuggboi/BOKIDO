@@ -4,12 +4,12 @@ function movement.update(player, input, animation, camera, dt, sfx)
     -- velocity
     local vx, vy = player.collider:getLinearVelocity()
 
-    -- ATTACK (press, not hold)
-    if input.state.space and not player.spaceWasDown and not player.isAttacking then
+    -- ATTACK (press, not hold) -> C
+    if input.state.c and not player.cWasDown and not player.isAttacking then
         player.isAttacking = true
         player.attackTimer = 0.7
     end
-    player.spaceWasDown = input.state.space
+    player.cWasDown = input.state.c
 
     -- state variables
     local walking = false
@@ -56,15 +56,15 @@ function movement.update(player, input, animation, camera, dt, sfx)
         vx = 0
     end
 
-    -- JUMP (trigger ONCE)
-    if input.state.c and not player.cWasDown then
+    -- JUMP (trigger ONCE) -> SPACE
+    if input.state.space and not player.spaceWasDown then
         if grounded then
             local jumpForce = -600
             player.collider:setLinearVelocity(vx, jumpForce)
-            animation.set(player, "jump") -- ✅ trigger once here
+            animation.set(player, "jump")
         end
     end
-    player.cWasDown = input.state.c
+    player.spaceWasDown = input.state.space
 
     -- ATTACK TIMER
     if player.isAttacking then
@@ -74,12 +74,11 @@ function movement.update(player, input, animation, camera, dt, sfx)
         end
     end
 
-    -- ANIMATION STATE MACHINE (CLEAN PRIORITY)
+    -- ANIMATION STATE MACHINE (PRIORITY)
     if player.isAttacking then
         animation.set(player, "lunge_punch")
 
     elseif not grounded then
-        -- in air (jump/fall)
         animation.set(player, "jump")
 
     elseif running then

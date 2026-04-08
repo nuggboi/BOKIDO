@@ -10,6 +10,6 @@ function input.update()
         i.space = love.keyboard.isDown("space")
         i.c = love.keyboard.isDown("c")
         i.shiftDown = love.keyboard.isDown("lshift")
-        i.nokeys = not (i.a or i.d or i.s or i.w or i.shiftDown)
+        i.nokeys = not (i.a or i.d or i.s or i.w or i.c or i.shiftDown)
 end
 return input
