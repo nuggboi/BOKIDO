@@ -9,7 +9,7 @@ function movement.update(player, input, animation, camera, dt, sfx)
         player.isAttacking = true
         player.attackTimer = 0.7
 
-        -- 💥 HARD STOP when attack begins (this fixes your bug)
+        -- HARD STOP when attack begins
         player.collider:setLinearVelocity(0, vy)
     end
     player.cWasDown = input.state.c
@@ -34,36 +34,45 @@ function movement.update(player, input, animation, camera, dt, sfx)
     -- 🚫 MOVEMENT LOCK DURING ATTACK
     if not player.isAttacking then
 
-        -- MOVE RIGHT
-        if input.state.d then
-            walking = true
-            if input.state.shiftDown then
-                vx = player.runspeed * player.speedmult
-                running = true
-            else
-                vx = player.walkspeed * player.speedmult
-            end
-            player.flipped = false
-            player.targetscaleX = 3
+        -- 🎮 ANALOG MOVEMENT
+        local moveX = input.state.moveX or 0
 
-        -- MOVE LEFT
-        elseif input.state.a then
-            walking = true
-            if input.state.shiftDown then
-                vx = -player.runspeed * player.speedmult
-                running = true
-            else
-                vx = -player.walkspeed * player.speedmult
-            end
-            player.flipped = true
-            player.targetscaleX = -3
+        -- deadzone
+        if math.abs(moveX) < 0.1 then
+            moveX = 0
+        end
 
+        if moveX ~= 0 then
+            walking = true
+
+            -- how far stick is tilted (0 → 1)
+            local inputStrength = math.abs(moveX)
+
+            -- smooth curve (feels better)
+            inputStrength = inputStrength * inputStrength
+
+            local speed = player.walkspeed
+            if input.state.shiftDown then
+                speed = player.runspeed
+                running = true
+            end
+
+            vx = speed * inputStrength * (moveX > 0 and 1 or -1) * player.speedmult
+
+            -- direction
+            if moveX > 0 then
+                player.flipped = false
+                player.targetscaleX = 3
+            else
+                player.flipped = true
+                player.targetscaleX = -3
+            end
         else
             vx = 0
         end
 
     else
-        -- 🚫 FORCE NO HORIZONTAL MOVEMENT EVERY FRAME
+        -- 🚫 FORCE NO MOVEMENT DURING ATTACK
         vx = 0
     end
 
@@ -111,7 +120,7 @@ function movement.update(player, input, animation, camera, dt, sfx)
         end
     end
 
-    -- FINAL velocity apply (guarantees no sliding)
+    -- FINAL velocity apply (preserve gravity)
     local _, currentVy = player.collider:getLinearVelocity()
     player.collider:setLinearVelocity(vx, currentVy)
 
