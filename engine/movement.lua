@@ -8,6 +8,9 @@ function movement.update(player, input, animation, camera, dt, sfx)
     if input.state.c and not player.cWasDown and not player.isAttacking then
         player.isAttacking = true
         player.attackTimer = 0.7
+
+        -- 💥 HARD STOP when attack begins (this fixes your bug)
+        player.collider:setLinearVelocity(0, vy)
     end
     player.cWasDown = input.state.c
 
@@ -28,37 +31,45 @@ function movement.update(player, input, animation, camera, dt, sfx)
         end
     end
 
-    -- MOVE RIGHT
-    if input.state.d then
-        walking = true
-        if input.state.shiftDown then
-            vx = player.runspeed * player.speedmult
-            running = true
-        else
-            vx = player.walkspeed * player.speedmult
-        end
-        player.flipped = false
-        player.targetscaleX = 3
+    -- 🚫 MOVEMENT LOCK DURING ATTACK
+    if not player.isAttacking then
 
-    -- MOVE LEFT
-    elseif input.state.a then
-        walking = true
-        if input.state.shiftDown then
-            vx = -player.runspeed * player.speedmult
-            running = true
+        -- MOVE RIGHT
+        if input.state.d then
+            walking = true
+            if input.state.shiftDown then
+                vx = player.runspeed * player.speedmult
+                running = true
+            else
+                vx = player.walkspeed * player.speedmult
+            end
+            player.flipped = false
+            player.targetscaleX = 3
+
+        -- MOVE LEFT
+        elseif input.state.a then
+            walking = true
+            if input.state.shiftDown then
+                vx = -player.runspeed * player.speedmult
+                running = true
+            else
+                vx = -player.walkspeed * player.speedmult
+            end
+            player.flipped = true
+            player.targetscaleX = -3
+
         else
-            vx = -player.walkspeed * player.speedmult
+            vx = 0
         end
-        player.flipped = true
-        player.targetscaleX = -3
 
     else
+        -- 🚫 FORCE NO HORIZONTAL MOVEMENT EVERY FRAME
         vx = 0
     end
 
     -- JUMP (trigger ONCE) -> SPACE
     if input.state.space and not player.spaceWasDown then
-        if grounded then
+        if grounded and not player.isAttacking then
             local jumpForce = -600
             player.collider:setLinearVelocity(vx, jumpForce)
             animation.set(player, "jump")
@@ -74,7 +85,7 @@ function movement.update(player, input, animation, camera, dt, sfx)
         end
     end
 
-    -- ANIMATION STATE MACHINE (PRIORITY)
+    -- ANIMATION STATE MACHINE
     if player.isAttacking then
         animation.set(player, "lunge_punch")
 
@@ -91,14 +102,16 @@ function movement.update(player, input, animation, camera, dt, sfx)
         animation.set(player, "idle")
     end
 
-    -- smooth flip
-    if player.scaleX < player.targetscaleX then
-        player.scaleX = math.min(player.scaleX + player.flipspeed, player.targetscaleX)
-    elseif player.scaleX > player.targetscaleX then
-        player.scaleX = math.max(player.scaleX - player.flipspeed, player.targetscaleX)
+    -- smooth flip (disabled during attack)
+    if not player.isAttacking then
+        if player.scaleX < player.targetscaleX then
+            player.scaleX = math.min(player.scaleX + player.flipspeed, player.targetscaleX)
+        elseif player.scaleX > player.targetscaleX then
+            player.scaleX = math.max(player.scaleX - player.flipspeed, player.targetscaleX)
+        end
     end
 
-    -- apply velocity (preserve gravity)
+    -- FINAL velocity apply (guarantees no sliding)
     local _, currentVy = player.collider:getLinearVelocity()
     player.collider:setLinearVelocity(vx, currentVy)
 
