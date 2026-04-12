@@ -1,6 +1,6 @@
 function love.load() -- load all variables, colliders, animations, etc
     --window config
-    love.window.setMode(1200, 800, {fullscreen = true})
+    love.window.setMode(1200, 800, {fullscreen = true, resizable = true})
     love.window.setTitle("BOKIDO")
 
     --pixel perfect
