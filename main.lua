@@ -1,6 +1,6 @@
 function love.load() -- load all variables, colliders, animations, etc
     --window config
-    love.window.setMode(1200, 800)
+    love.window.setMode(1200, 800, {fullscreen = true})
     love.window.setTitle("BOKIDO")
 
     --pixel perfect
@@ -58,6 +58,13 @@ function love.update(dt) -- updates physics, movement, animation
     movement.update(player, input, animation, camera, dt)
 
     --CAMERA STUFF FOUND IN MOVEMENT.LUA
+end
+
+function love.keypressed(key)
+    if key == "f11" then
+        local isFullscreen = love.window.getFullscreen()
+        love.window.setFullscreen(not isFullscreen)
+    end
 end
 
 function love.draw()
