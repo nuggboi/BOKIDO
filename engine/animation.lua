@@ -38,7 +38,7 @@ local animations = {
         sheet = playersheet
     },
     lunge_punch = {
-        anim = anim8.newAnimation(lunge_punchgrid("1-43", 1), animspds.atkspd),
+        anim = anim8.newAnimation(lunge_punchgrid("1-48", 1), animspds.atkspd),
         sheet = lunge_punchsheet
     },
     jump = {

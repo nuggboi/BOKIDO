@@ -9,6 +9,10 @@ function movement.update(player, input, animation, camera, dt, sfx)
         player.isAttacking = true
         player.attackTimer = 0.7
 
+        --hitbox stuff
+        player.attackStarted = true
+        player.hitboxDelay = 0.55
+
         -- HARD STOP when attack begins
         player.collider:setLinearVelocity(0, vy)
     end
@@ -31,10 +35,10 @@ function movement.update(player, input, animation, camera, dt, sfx)
         end
     end
 
-    -- 🚫 MOVEMENT LOCK DURING ATTACK
+    --  MOVEMENT LOCK DURING ATTACK
     if not player.isAttacking then
 
-        -- 🎮 ANALOG MOVEMENT
+        --  ANALOG MOVEMENT
         local moveX = input.state.moveX or 0
 
         -- deadzone
@@ -72,7 +76,7 @@ function movement.update(player, input, animation, camera, dt, sfx)
         end
 
     else
-        -- 🚫 FORCE NO MOVEMENT DURING ATTACK
+        --FORCE NO MOVEMENT DURING ATTACK
         vx = 0
     end
 

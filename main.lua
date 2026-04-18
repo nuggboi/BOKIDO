@@ -23,6 +23,7 @@ function love.load() -- load all variables, colliders, animations, etc
     parallax = require("engine/parallax")
     input = require("engine/input")
     movement = require("engine/movement")
+    combat = require("engine/combat")
 
     --shader config
     effect = moonshine(moonshine.effects.scanlines) -- init shader
@@ -45,6 +46,9 @@ function love.load() -- load all variables, colliders, animations, etc
 
     --sfx init [VERY CHANGEABLE RN]
     --lungepunchsfx = love.audio.newSource("assets/audio/sfx/atkx/lungepunch/lungepunch1.wav", "static")
+
+    --combat entities
+    entities = {player}
 end
 
 function love.update(dt) -- updates physics, movement, animation
@@ -56,6 +60,11 @@ function love.update(dt) -- updates physics, movement, animation
     input.update()
     --movement update
     movement.update(player, input, animation, camera, dt)
+    --combat update
+    combat.update(dt)
+    combat.updateEntities(entities, dt)
+    combat.handle(entities)
+    combat.handlePlayerAttack(player,dt)
 
     --CAMERA STUFF FOUND IN MOVEMENT.LUA
 end
@@ -81,6 +90,12 @@ function love.draw()
 
         --player draw
         player.animation.anim:draw(player.animation.sheet, player.x, player.y, 0, player.scaleX, 3, 64, 64)
+
+        --collision debug
+        world:draw()
+
+        --hitbox debug
+        combat.draw(entities)
 
         --update
         love.graphics.pop()

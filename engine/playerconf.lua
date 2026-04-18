@@ -11,7 +11,7 @@ function playerconf.load()
     player.flipped = false
     player.scaleX = 3
     player.targetscaleX = 3
-    player.flipspeed = 1.0 --flip speed
+    player.flipspeed = 2 --flip speed
     player.speedmult = 150
 
     --jump globals
@@ -25,5 +25,17 @@ function playerconf.load()
     player.collider:setPosition(player.x, player.y)
     player.collider:setFriction(0.5)
     player.collider:setFixedRotation(true) --prevents rotation
+
+    --combat
+    player.health = 100
+    player.invulnTimer = 0
+
+    player.hurtbox = {
+        offsetX = -15,
+        offsetY = -36,
+        w = 28,
+        h = 75,
+    }
+   
 end
 return playerconf
