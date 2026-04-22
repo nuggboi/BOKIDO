@@ -24,6 +24,7 @@ function love.load() -- load all variables, colliders, animations, etc
     input = require("engine/input")
     movement = require("engine/movement")
     combat = require("engine/combat")
+    enemy = require("engine/enemy")
 
     --shader config
     effect = moonshine(moonshine.effects.scanlines) -- init shader
@@ -49,22 +50,36 @@ function love.load() -- load all variables, colliders, animations, etc
 
     --combat entities
     entities = {player}
+
+    --enemy entity added
+    local Enemy = require("engine/enemy")
+    local e = Enemy.new({ x = 800, y = -200, patrolMinX = 600, patrolMaxX = 1000 })
+    entities[#entities+1] = e
 end
 
 function love.update(dt) -- updates physics, movement, animation
     --physics update
     world:update(dt)
+
     --animation update
     animation.update(player,dt)
+
     --input update
     input.update()
+
     --movement update
     movement.update(player, input, animation, camera, dt)
+
     --combat update
     combat.update(dt)
     combat.updateEntities(entities, dt)
     combat.handle(entities)
     combat.handlePlayerAttack(player,dt)
+
+    --enemy update
+    for _, ent in ipairs(entities) do
+        if ent.update then ent:update(dt) end
+    end
 
     --CAMERA STUFF FOUND IN MOVEMENT.LUA
 end
@@ -90,6 +105,11 @@ function love.draw()
 
         --player draw
         player.animation.anim:draw(player.animation.sheet, player.x, player.y, 0, player.scaleX, 3, 64, 64)
+
+        --enemy draw
+        for _, ent in ipairs(entities) do
+            if ent.draw then ent:draw() end
+        end
 
         --collision debug
         world:draw()
