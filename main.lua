@@ -78,7 +78,7 @@ end
 
 function love.draw()
     --SHADER
-    effect(function()
+    --effect(function()
         parallax.draw(background, camera)
 
         -- Apply camera transform for world objects
@@ -99,5 +99,5 @@ function love.draw()
 
         --update
         love.graphics.pop()
-    end)
+    --end)
 end

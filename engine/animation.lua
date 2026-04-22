@@ -10,18 +10,9 @@ local animspds = {
     jumpspd = 0.03 -- slower so jump plays properly
 }
 
--- spritesheets
--- player
-local playersheet = love.graphics.newImage("assets/player/male_hero_template.png")
+-- spritesheet
+local playersheet = love.graphics.newImage("assets/player/player_sheet.png")
 local playergrid = anim8.newGrid(128, 128, playersheet:getWidth(), playersheet:getHeight())
-
--- attacks
-local lunge_punchsheet = love.graphics.newImage("assets/player/attacks/lunge_punch.png")
-local lunge_punchgrid = anim8.newGrid(128, 128, lunge_punchsheet:getWidth(), lunge_punchsheet:getHeight())
-
--- movement
-local jumpsheet = love.graphics.newImage("assets/player/movement/jump.png")
-local jumpgrid = anim8.newGrid(128, 128, jumpsheet:getWidth(), jumpsheet:getHeight())
 
 -- animations
 local animations = {
@@ -33,18 +24,18 @@ local animations = {
         anim = anim8.newAnimation(playergrid("1-10", 3), animspds.movespd),
         sheet = playersheet
     },
-    run = {
+    run = { 
         anim = anim8.newAnimation(playergrid("1-10", 4), animspds.movespd),
         sheet = playersheet
     },
     lunge_punch = {
-        anim = anim8.newAnimation(lunge_punchgrid("1-48", 1), animspds.atkspd),
-        sheet = lunge_punchsheet
+        anim = anim8.newAnimation(playergrid("1-48", 6), animspds.atkspd),
+        sheet = playersheet
     },
     jump = {
         -- false = DO NOT LOOP (important for jump)
-        anim = anim8.newAnimation(jumpgrid("1-39", 1), animspds.jumpspd, "pauseAtEnd"),
-        sheet = jumpsheet
+        anim = anim8.newAnimation(playergrid("1-39", 5), animspds.jumpspd, "pauseAtEnd"),
+        sheet = playersheet
     }
 }
 
