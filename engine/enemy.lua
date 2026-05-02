@@ -4,7 +4,7 @@ local anim8 = require("libs/anim8")
 
 local sheet = love.graphics.newImage("assets/enemy/enemy_sheet.png")
 
--- 🔴 CHANGE THIS IF YOUR SPRITE FRAMES AREN’T 128x128
+--CHANGE THIS IF YOUR SPRITE FRAMES AREN’T 128x128
 local FRAME_W = 128
 local FRAME_H = 128
 
@@ -51,7 +51,7 @@ function enemy.new(opts)
     e.x = opts.x or 600
     e.y = opts.y or 0
 
-    -- 🔴 Use ONE scale value
+    --Use ONE scale value
     e.scale = opts.scale or 3
     e.targetScale = e.scale
 
@@ -207,7 +207,7 @@ function enemy.new(opts)
 
     function e:draw(debug)
         if self.animation then
-            -- 🔴 Proper flipping WITHOUT breaking width
+            --Proper flipping WITHOUT breaking width
             local sx = self.flipped and -self.scale or self.scale
 
             self.animation.anim:draw(
