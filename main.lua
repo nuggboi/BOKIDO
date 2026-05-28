@@ -12,8 +12,7 @@ function love.load() -- load all variables, colliders, animations, etc
 
     --physics world init
     world = bf.newWorld(0, 1200) --gravity
-    --register contact callbacks
-    world:setCallbacks(beginContact, endContact)
+    -- Breezefield's world already registers its own callbacks; do not override
 
     --file inits
     playerconf = require("engine/playerconf")
@@ -44,6 +43,10 @@ function love.load() -- load all variables, colliders, animations, etc
     --platform collider
     platform.collider = world:newCollider("Rectangle", {520, 62, platform.w, platform.h })
     platform.collider:setType("static")
+    -- ensure fixture userData for contact checks
+    if platform.collider.fixture then
+        platform.collider.fixture:setUserData(platform.collider)
+    end
 
     --sfx init [VERY CHANGEABLE RN]
     --lungepunchsfx = love.audio.newSource("assets/audio/sfx/atkx/lungepunch/lungepunch1.wav", "static")

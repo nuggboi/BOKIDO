@@ -24,11 +24,11 @@ function movement.update(player, input, animation, camera, dt, sfx)
     local grounded = false
 
     -- GROUND CHECK
-    for _, contact in ipairs(world:getContacts(player.collider)) do
+    for _, contact in ipairs(player.collider:getContacts()) do
         if contact:isTouching() then
             local f1, f2 = contact:getFixtures()
             local other = (f1 == player.collider.fixture) and f2:getUserData() or f1:getUserData()
-            if other == platform.collider then
+            if other and other == platform.collider then
                 grounded = true
                 break
             end
@@ -82,10 +82,20 @@ function movement.update(player, input, animation, camera, dt, sfx)
 
     -- JUMP (trigger ONCE) -> SPACE
     if input.state.space and not player.spaceWasDown then
+        -- debug info for jump attempts
+        do
+            local contacts = player.collider:getContacts() or {}
+            local cnt = 0
+            for _ in ipairs(contacts) do cnt = cnt + 1 end
+            print(string.format("Jump attempt: grounded=%s, isAttacking=%s, vy=%.2f, contacts=%d", tostring(grounded), tostring(player.isAttacking), vy, cnt))
+        end
+
         if grounded and not player.isAttacking then
             local jumpForce = -600
             player.collider:setLinearVelocity(vx, jumpForce)
             animation.set(player, "jump")
+        else
+            print("Jump blocked: grounded=" .. tostring(grounded) .. ", isAttacking=" .. tostring(player.isAttacking))
         end
     end
     player.spaceWasDown = input.state.space

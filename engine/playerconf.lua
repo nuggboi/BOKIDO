@@ -16,6 +16,7 @@ function playerconf.load()
 
     --jump globals
     player.cWasDown = false
+    player.spaceWasDown = false
     player.isJumping = false
     player.jumpsRemaining = 1
 
@@ -25,6 +26,11 @@ function playerconf.load()
     player.collider:setPosition(player.x, player.y)
     player.collider:setFriction(0.5)
     player.collider:setFixedRotation(true) --prevents rotation
+
+    -- ensure fixture userData for contact checks
+    if player.collider.fixture then
+        player.collider.fixture:setUserData(player.collider)
+    end
 
     --combat
     player.health = 100
