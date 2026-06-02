@@ -96,7 +96,7 @@ end
 
 function love.draw()
     --SHADER
-    --effect(function()
+    effect(function()
         parallax.draw(background, camera)
 
         -- Apply camera transform for world objects
@@ -115,12 +115,12 @@ function love.draw()
         end
 
         --collision debug
-        world:draw()
+        --world:draw()
 
         --hitbox debug
-        combat.draw(entities)
+        --combat.draw(entities)
 
         --update
         love.graphics.pop()
-    --end)
+    end)
 end

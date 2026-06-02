@@ -57,13 +57,23 @@ function enemy.new(opts)
 
     e.flipped = false
 
-    e.speed = opts.speed or 1
-    e.runSpeed = opts.runSpeed or 3
-    e.speedMult = opts.speedMult or 150
+    e.speed = opts.speed or 1           -- patrol speed multiplier (1 * speedMult = 150 px/frame)
+    e.runSpeed = opts.runSpeed or 3     -- chase/run speed multiplier (3 * speedMult = 450 px/frame)
+    e.speedMult = opts.speedMult or 75 -- base velocity multiplier
     e.flipspeed = opts.flipspeed or 2
 
     e.health = opts.health or 50
     e.invulnTimer = 0
+
+    -- Hurt / flash state
+    e.isHurt = false
+    e.hurtTimer = 0
+    e.hurtDuration = opts.hurtDuration or 0.6
+    e.hurtFlashInterval = opts.hurtFlashInterval or 0.06
+    e.hurtFlashTimer = 0
+    e.hurtFlashOn = false
+    e.hurtKnockbackX = opts.hurtKnockbackX or 600
+    e.hurtKnockbackY = opts.hurtKnockbackY or -400
 
     e.hurtbox = opts.hurtbox or { offsetX = -15, offsetY = -36, w = 28, h = 75 }
 
@@ -104,13 +114,25 @@ function enemy.new(opts)
     function e:takeDamage(amount, source)
         if self.invulnTimer > 0 then return end
 
+        -- apply damage + invulnerability
         self.health = self.health - amount
-        self.invulnTimer = 0.3
+        self.invulnTimer = self.hurtDuration
 
+        -- set hurt state (freeze animation + flash)
+        self.isHurt = true
+        self.hurtTimer = self.hurtDuration
+        self.hurtFlashTimer = self.hurtFlashInterval
+        self.hurtFlashOn = true
+
+        -- pause the current animation so it stays on the current frame
+        if self.animation and self.animation.anim and self.animation.anim.pause then
+            self.animation.anim:pause()
+        end
+
+        -- knockback away from the damage source
         if source and source.x then
             local dir = (self.x < source.x) and -1 or 1
-            local vx, vy = self.collider:getLinearVelocity()
-            self.collider:setLinearVelocity(200 * dir, vy)
+            self.collider:setLinearVelocity(self.hurtKnockbackX * dir, self.hurtKnockbackY)
         end
 
         if self.health <= 0 then
@@ -121,6 +143,10 @@ function enemy.new(opts)
 
     function e:die()
         self:setAnimation("death")
+        -- make sure death animation plays even if we were paused by hurt
+        if self.animation and self.animation.anim and self.animation.anim.resume then
+            self.animation.anim:resume()
+        end
         if self.collider then
             self.collider:destroy()
             self.collider = nil
@@ -191,18 +217,45 @@ function enemy.new(opts)
             end
         end
 
-        self.collider:setLinearVelocity(targetVx, currentVy)
-        self.x, self.y = self.collider:getPosition()
-
-        if self.isAttacking then
-            self:setAnimation("attack")
-        elseif math.abs(targetVx) > 1 then
-            self:setAnimation("walk")
-        else
-            self:setAnimation("idle")
+        -- don't override knockback velocity while hurt
+        if not self.isHurt then
+            self.collider:setLinearVelocity(targetVx, currentVy)
         end
 
-        self.animation.anim:update(dt)
+        self.x, self.y = self.collider:getPosition()
+
+        -- only change animations when NOT hurt (we want to freeze the current frame)
+        if not self.isHurt then
+            if self.isAttacking then
+                self:setAnimation("attack")
+            elseif math.abs(targetVx) > 1 then
+                self:setAnimation("walk")
+            else
+                self:setAnimation("idle")
+            end
+        end
+
+        -- handle hurt timers and flash toggling
+        if self.isHurt then
+            self.hurtTimer = self.hurtTimer - dt
+            self.hurtFlashTimer = self.hurtFlashTimer - dt
+            if self.hurtFlashTimer <= 0 then
+                self.hurtFlashOn = not self.hurtFlashOn
+                self.hurtFlashTimer = self.hurtFlashInterval
+            end
+            if self.hurtTimer <= 0 then
+                self.isHurt = false
+                self.hurtFlashOn = false
+                if self.animation and self.animation.anim and self.animation.anim.resume then
+                    self.animation.anim:resume()
+                end
+            end
+        end
+
+        -- update animation only when not hurt (paused during hurt)
+        if self.animation and self.animation.anim and not self.isHurt then
+            self.animation.anim:update(dt)
+        end
     end
 
     function e:draw(debug)
@@ -220,6 +273,24 @@ function enemy.new(opts)
                 FRAME_W / 2,
                 FRAME_H / 2
             )
+
+            -- white flash overlay while hurt (additive draw of same frame)
+            if self.isHurt and self.hurtFlashOn then
+                love.graphics.setBlendMode("add")
+                love.graphics.setColor(1, 1, 1, 0.85)
+                self.animation.anim:draw(
+                    self.animation.sheet,
+                    self.x,
+                    self.y,
+                    0,
+                    sx,
+                    self.scale,
+                    FRAME_W / 2,
+                    FRAME_H / 2
+                )
+                love.graphics.setBlendMode("alpha")
+                love.graphics.setColor(1, 1, 1, 1)
+            end
         end
 
         if debug then

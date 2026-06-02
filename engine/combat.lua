@@ -125,17 +125,20 @@ function combat.handle(entities)
 
                 if checkCollision(hb, hurtbox) then
                     if not hb.hitTargets[target] then
-                        target.health = target.health - hb.damage
-                        hb.hitTargets[target] = true
-
-                        -- apply i-frames
-                        target.invulnTimer = 0.3
-
-                        -- optional knockback
-                        if target.vx then
-                            local dir = (target.x < hb.x) and -1 or 1
-                            target.vx = 200 * dir
+                        -- prefer target-specific damage handling when available
+                        if type(target.takeDamage) == 'function' then
+                            target:takeDamage(hb.damage, hb.owner)
+                        else
+                            target.health = target.health - hb.damage
+                            -- apply i-frames
+                            target.invulnTimer = 0.3
+                            -- optional knockback for simple objects with vx
+                            if target.vx then
+                                local dir = (target.x < hb.x) and -1 or 1
+                                target.vx = 200 * dir
+                            end
                         end
+                        hb.hitTargets[target] = true
                     end
                 end
             end
