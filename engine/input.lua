@@ -26,6 +26,7 @@ function input.update()
 
     local kspace = love.keyboard.isDown("space")
     local kc = love.keyboard.isDown("c")
+    local kx = love.keyboard.isDown("x")
     local kshift = love.keyboard.isDown("lshift")
 
     local kmoveX = (kd and 1 or 0) + (ka and -1 or 0)
@@ -89,6 +90,7 @@ function input.update()
 
     i.space = kspace or gspace
     i.c = kc or gc
+    i.x = kx -- kick button (keyboard)
 
     i.shiftDown = kshift or input.sprintToggle
 

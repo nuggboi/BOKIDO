@@ -4,19 +4,38 @@ function movement.update(player, input, animation, camera, dt, sfx)
     -- velocity
     local vx, vy = player.collider:getLinearVelocity()
 
-    -- ATTACK (press, not hold) -> C
+    -- ATTACK (press, not hold)
+    -- primary attack -> C (lunge punch)
     if input.state.c and not player.cWasDown and not player.isAttacking then
+        local cfg = (player.attackHitboxes and player.attackHitboxes.punch) or {}
         player.isAttacking = true
-        player.attackTimer = 0.7
+        player.attackTimer = cfg.attackTimer or 0.7
+        player.attackType = "punch"
 
-        --hitbox stuff
+        -- hitbox timing
         player.attackStarted = true
-        player.hitboxDelay = 0.55
+        player.hitboxDelay = cfg.hitboxDelay or 0.55
 
         -- HARD STOP when attack begins
         player.collider:setLinearVelocity(0, vy)
     end
     player.cWasDown = input.state.c
+
+    -- secondary attack -> X (kick)
+    if input.state.x and not player.xWasDown and not player.isAttacking then
+        local cfg = (player.attackHitboxes and player.attackHitboxes.kick) or {}
+        player.isAttacking = true
+        player.attackTimer = cfg.attackTimer or 0.6
+        player.attackType = "kick"
+
+        -- hitbox timing (kick is a bit faster)
+        player.attackStarted = true
+        player.hitboxDelay = cfg.hitboxDelay or 0.4
+
+        -- HARD STOP when attack begins
+        player.collider:setLinearVelocity(0, vy)
+    end
+    player.xWasDown = input.state.x
 
     -- state variables
     local walking = false
@@ -76,7 +95,7 @@ function movement.update(player, input, animation, camera, dt, sfx)
         end
 
     else
-        --FORCE NO MOVEMENT DURING ATTACK
+        -- FORCE NO MOVEMENT DURING ATTACK
         vx = 0
     end
 
@@ -86,8 +105,11 @@ function movement.update(player, input, animation, camera, dt, sfx)
         do
             local contacts = player.collider:getContacts() or {}
             local cnt = 0
-            for _ in ipairs(contacts) do cnt = cnt + 1 end
-            print(string.format("Jump attempt: grounded=%s, isAttacking=%s, vy=%.2f, contacts=%d", tostring(grounded), tostring(player.isAttacking), vy, cnt))
+            for _ in ipairs(contacts) do
+                cnt = cnt + 1
+            end
+            print(string.format("Jump attempt: grounded=%s, isAttacking=%s, vy=%.2f, contacts=%d", tostring(grounded),
+                tostring(player.isAttacking), vy, cnt))
         end
 
         if grounded and not player.isAttacking then
@@ -110,7 +132,11 @@ function movement.update(player, input, animation, camera, dt, sfx)
 
     -- ANIMATION STATE MACHINE
     if player.isAttacking then
-        animation.set(player, "lunge_punch")
+        if player.attackType == "kick" then
+            animation.set(player, "kick")
+        else
+            animation.set(player, "lunge_punch")
+        end
 
     elseif not grounded then
         animation.set(player, "jump")
@@ -142,8 +168,8 @@ function movement.update(player, input, animation, camera, dt, sfx)
     player.x, player.y = player.collider:getPosition()
 
     -- camera follow
-    local targetX = player.x - love.graphics.getWidth()/2
-    local targetY = player.y - love.graphics.getHeight()/2
+    local targetX = player.x - love.graphics.getWidth() / 2
+    local targetY = player.y - love.graphics.getHeight() / 2
     camera.x = camera.x + (targetX - camera.x) * dt * camera.speed
     camera.y = camera.y + (targetY - camera.y) * dt * camera.speed
 end

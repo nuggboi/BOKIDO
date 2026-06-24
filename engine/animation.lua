@@ -6,7 +6,7 @@ local anim8 = require("libs/anim8")
 -- animation speeds
 local animspds = {
     movespd = 0.09,
-    atkspd = 0.02,
+    punchspd = 0.02,
     jumpspd = 0.03 -- slower so jump plays properly
 }
 
@@ -24,12 +24,16 @@ local animations = {
         anim = anim8.newAnimation(playergrid("1-10", 3), animspds.movespd),
         sheet = playersheet
     },
-    run = { 
+    run = {
         anim = anim8.newAnimation(playergrid("1-10", 4), animspds.movespd),
         sheet = playersheet
     },
     lunge_punch = {
-        anim = anim8.newAnimation(playergrid("1-48", 6), animspds.atkspd),
+        anim = anim8.newAnimation(playergrid("1-48", 6), animspds.punchspd),
+        sheet = playersheet
+    },
+    kick = {
+        anim = anim8.newAnimation(playergrid("1-36", 7), 0.023),
         sheet = playersheet
     },
     jump = {
@@ -61,6 +65,15 @@ function animation.set(player, name)
         player.animation = nextAnim
         player.currentAnimName = name
         player.animation.anim:gotoFrame(1)
+        -- If this is an attack animation, ensure the player's attackTimer
+        -- is at least as long as the animation's total duration so the
+        -- animation isn't cut off when the attack state ends early.
+        if (name == "lunge_punch" or name == "kick") and player.isAttacking then
+            local animObj = player.animation.anim
+            if animObj and animObj.totalDuration then
+                player.attackTimer = math.max(player.attackTimer or 0, animObj.totalDuration)
+            end
+        end
     end
 end
 

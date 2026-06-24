@@ -48,7 +48,9 @@ end
 -- PLAYER ATTACK HANDLING
 --------------------------------------------------
 function combat.handlePlayerAttack(player, dt)
-    if not player or not dt then return end
+    if not player or not dt then
+        return
+    end
 
     if player.isAttacking then
 
@@ -57,22 +59,19 @@ function combat.handlePlayerAttack(player, dt)
             player.hitboxDelay = player.hitboxDelay - dt
 
             if player.hitboxDelay <= 0 then
-                local offsetX = 20
-                local offsetY = -17
-                local w = 50
-                local h = 30
+                local attackType = player.attackType or "punch"
+                local cfg = (player.attackHitboxes and player.attackHitboxes[attackType]) or {}
+
+                local offsetX = cfg.offsetX or 20
+                local offsetY = cfg.offsetY or -17
+                local w = cfg.w or 50
+                local h = cfg.h or 30
+                local dmg = cfg.damage or 10
+                local dur = cfg.duration or 0.15
 
                 local x = getAttackX(player.x, offsetX, w, player.flipped)
 
-                combat.spawnHitbox(
-                    x,
-                    player.y + offsetY,
-                    w,
-                    h,
-                    10,
-                    0.15,
-                    player
-                )
+                combat.spawnHitbox(x, player.y + offsetY, w, h, dmg, dur, player)
 
                 player.hitboxSpawned = true
             end
@@ -88,17 +87,16 @@ end
 -- AABB collision check
 --------------------------------------------------
 local function checkCollision(a, b)
-    return a.x < b.x + b.w and
-           a.x + a.w > b.x and
-           a.y < b.y + b.h and
-           a.y + a.h > b.y
+    return a.x < b.x + b.w and a.x + a.w > b.x and a.y < b.y + b.h and a.y + a.h > b.y
 end
 
 --------------------------------------------------
 -- Handle combat (apply damage)
 --------------------------------------------------
 function combat.handle(entities)
-    if not entities then return end
+    if not entities then
+        return
+    end
 
     for _, hb in ipairs(combat.hitboxes) do
         for _, target in ipairs(entities) do
@@ -152,7 +150,9 @@ end
 -- Update entity timers (like i-frames)
 --------------------------------------------------
 function combat.updateEntities(entities, dt)
-    if not entities then return end
+    if not entities then
+        return
+    end
 
     for _, e in ipairs(entities) do
         if e.invulnTimer and e.invulnTimer > 0 then
@@ -176,13 +176,8 @@ function combat.draw(entities)
         for _, e in ipairs(entities) do
             if e.hurtbox then
                 love.graphics.setColor(0, 1, 0, 0.5)
-                love.graphics.rectangle(
-                    "fill",
-                    e.x + e.hurtbox.offsetX,
-                    e.y + e.hurtbox.offsetY,
-                    e.hurtbox.w,
-                    e.hurtbox.h
-                )
+                love.graphics.rectangle("fill", e.x + e.hurtbox.offsetX, e.y + e.hurtbox.offsetY, e.hurtbox.w,
+                    e.hurtbox.h)
             end
         end
     end
